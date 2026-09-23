@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b1220">
+  <title>CRM IA | Gestão de clientes</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#111827}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
+    .auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0b1220,#18253d)}
+    .auth-box{width:100%;max-width:430px;background:#fff;border-radius:20px;padding:30px;box-shadow:0 25px 70px rgba(0,0,0,.28)}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:21px}
+    .logo{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#111827;color:#fff;font-weight:900}
+    .subtitle{color:#6b7280;font-size:14px;margin:9px 0 24px}
+    .tabs{display:grid;grid-template-columns:1fr 1fr;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:20px}
+    .tab{border:0;background:transparent;padding:11px;border-radius:8px;color:#6b7280;font-weight:700}
+    .tab.active{background:#fff;color:#111827;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .form{display:flex;flex-direction:column;gap:12px}
+    .field{width:100%;border:1px solid #d1d5db;border-radius:10px;padding:13px 14px;outline:none;background:#fff}
+    .field:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.08)}
+    .btn{border:0;border-radius:10px;padding:13px 16px;background:#111827;color:#fff;font-weight:800}
+    .btn:hover{opacity:.92}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .msg{min-height:20px;font-size:13px;color:#b42318}
+    .app{min-height:100vh;display:flex}
+    .side{width:235px;background:#0b1220;color:#fff;padding:22px 15px;position:fixed;left:0;top:0;bottom:0}
+    .side .brand{padding:4px 8px 28px}
+    .nav{display:flex;flex-direction:column;gap:7px}
+    .nav button{border:0;background:transparent;color:#b9c2d0;text-align:left;padding:12px 13px;border-radius:10px;font-weight:700}
+    .nav button:hover,.nav button.active{background:#1b263b;color:#fff}
+    .main{margin-left:235px;width:calc(100% - 235px);padding:28px;max-width:1400px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+    h1{font-size:28px;margin:0 0 5px}
+    .muted{color:#6b7280;font-size:14px}
+    .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(15,23,42,.04)}
+    .num{font-size:30px;font-weight:900;margin-top:7px}
+    .toolbar{display:flex;gap:10px;margin-bottom:16px}
+    .search{max-width:420px;width:100%;border:1px solid #d1d5db;border-radius:10px;padding:12px 14px;outline:none}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:650px}
+    th,td{text-align:left;padding:14px 12px;border-bottom:1px solid #edf0f4;font-size:14px}
+    th{font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:.04em}
+    .tag{display:inline-flex;padding:5px 9px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:800}
+    .empty{text-align:center;color:#6b7280;padding:35px}
+    .loading{text-align:center;padding:25px;color:#6b7280}
+    .modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+    .modal-box{width:100%;max-width:500px;background:#fff;border-radius:18px;padding:24px}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .modal-head h2{margin:0;font-size:21px}
+    .close{border:0;background:#f3f4f6;border-radius:9px;width:36px;height:36px}
+    .modal-form{display:flex;flex-direction:column;gap:12px}
+    .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+    .secondary{border:1px solid #d1d5db;background:#fff;color:#111827}
+    .danger{background:#b42318}
+    .status-msg{font-size:13px;min-height:18px}
+    @media(max-width:800px){
+      .side{width:72px;padding:18px 9px}.side .brand span{display:none}.side .brand{justify-content:center;padding-bottom:22px}.nav button{font-size:0;text-align:center}.nav button:first-letter{font-size:18px}.main{margin-left:72px;width:calc(100% - 72px);padding:18px}.cards{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}
+    }
+    @media(max-width:520px){.auth-box{padding:22px}.main{padding:14px}.side{width:62px}.main{margin-left:62px;width:calc(100% - 62px)}h1{font-size:23px}}
+  </style>
+</head>
+<body>
+
+  <div id="authScreen" class="auth">
+    <div class="auth-box">
+      <div class="brand"><div class="logo">C</div><span>CRM IA</span></div>
+      <div class="subtitle">Gestão simples de leads e clientes para sua empresa.</div>
+
+      <div class="tabs">
+        <button type="button" id="loginTab" class="tab active">Entrar</button>
+        <button type="button" id="registerTab" class="tab">Criar conta</button>
+      </div>
+
+      <form id="authForm" class="form" novalidate>
+        <input id="nameInput" class="field hidden" type="text" autocomplete="name" placeholder="Seu nome">
+        <input id="companyInput" class="field hidden" type="text" autocomplete="organization" placeholder="Nome da empresa">
+        <input id="emailInput" class="field" type="email" autocomplete="email" placeholder="E-mail">
+        <input id="passwordInput" class="field" type="password" autocomplete="current-password" placeholder="Senha">
+        <div id="authMessage" class="msg" role="alert"></div>
+        <button id="authButton" class="btn" type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="appScreen" class="app hidden">
+    <aside class="side">
+      <div class="brand"><div class="logo">C</div><span>CRM IA</span></div>
+      <div class="nav">
+        <button id="dashboardNav" class="active" type="button">▦ <span>Dashboard</span></button>
+        <button id="leadsNav" type="button">♙ <span>Leads</span></button>
+        <button id="logoutButton" type="button">↪ <span>Sair</span></button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="dashboardSection">
+        <div class="top">
+          <div>
+            <h1>Dashboard</h1>
+            <div id="helloText" class="muted">Carregando...</div>
+          </div>
+        </div>
+
+        <div class="cards">
+          <div class="card"><div class="muted">Total de leads</div><div id="totalLeads" class="num">0</div></div>
+          <div class="card"><div class="muted">Leads novos</div><div id="newLeads" class="num">0</div></div>
+          <div class="card"><div class="muted">Sistema</div><div id="systemStatus" class="num" style="font-size:18px">Verificando...</div></div>
+        </div>
+      </section>
+
+      <section id="leadsSection" class="hidden" style="margin-top:20px">
+        <div class="top">
+          <div>
+            <h1>Leads</h1>
+            <div class="muted">Dados carregados do banco da sua empresa.</div>
+          </div>
+          <button id="newLeadButton" class="btn" type="button">+ Novo lead</button>
+        </div>
+
+        <div class="card">
+          <div class="toolbar">
+            <input id="searchInput" class="search" type="search" placeholder="Buscar por nome, e-mail ou telefone">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th></tr></thead>
+              <tbody id="leadRows"><tr><td colspan="4" class="loading">Carregando...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="leadModal" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h2>Novo lead</h2>
+        <button id="closeModalButton" class="close" type="button">×</button>
+      </div>
+      <form id="leadForm" class="modal-form">
+        <input id="leadNameInput" class="field" type="text" placeholder="Nome do lead" required>
+        <input id="leadEmailInput" class="field" type="email" placeholder="E-mail">
+        <input id="leadPhoneInput" class="field" type="tel" placeholder="Telefone">
+        <select id="leadStatusInput" class="field">
+          <option value="novo">Novo</option>
+          <option value="contato">Em contato</option>
+          <option value="qualificado">Qualificado</option>
+          <option value="cliente">Cliente</option>
+        </select>
+        <div id="leadMessage" class="status-msg" role="alert"></div>
+        <div class="modal-actions">
+          <button id="cancelLeadButton" class="btn secondary" type="button">Cancelar</button>
+          <button id="saveLeadButton" class="btn" type="submit">Salvar lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  const authScreen = document.getElementById("authScreen");
+  const appScreen = document.getElementById("appScreen");
+  const loginTab = document.getElementById("loginTab");
+  const registerTab = document.getElementById("registerTab");
+  const authForm = document.getElementById("authForm");
+  const nameInput = document.getElementById("nameInput");
+  const companyInput = document.getElementById("companyInput");
+  const emailInput = document.getElementById("emailInput");
+  const passwordInput = document.getElementById("passwordInput");
+  const authButton = document.getElementById("authButton");
+  const authMessage = document.getElementById("authMessage");
+  const helloText = document.getElementById("helloText");
+  const totalLeads = document.getElementById("totalLeads");
+  const newLeads = document.getElementById("newLeads");
+  const systemStatus = document.getElementById("systemStatus");
+  const dashboardSection = document.getElementById("dashboardSection");
+  const leadsSection = document.getElementById("leadsSection");
+  const dashboardNav = document.getElementById("dashboardNav");
+  const leadsNav = document.getElementById("leadsNav");
+  const logoutButton = document.getElementById("logoutButton");
+  const searchInput = document.getElementById("searchInput");
+  const leadRows = document.getElementById("leadRows");
+  const newLeadButton = document.getElementById("newLeadButton");
+  const leadModal = document.getElementById("leadModal");
+  const closeModalButton = document.getElementById("closeModalButton");
+  const cancelLeadButton = document.getElementById("cancelLeadButton");
+  const leadForm = document.getElementById("leadForm");
+  const leadNameInput = document.getElementById("leadNameInput");
+  const leadEmailInput = document.getElementById("leadEmailInput");
+  const leadPhoneInput = document.getElementById("leadPhoneInput");
+  const leadStatusInput = document.getElementById("leadStatusInput");
+  const leadMessage = document.getElementById("leadMessage");
+  const saveLeadButton = document.getElementById("saveLeadButton");
+
+  let registerMode = false;
+  let leads = [];
+  let currentUser = null;
+
+  async function api(url, options = {}) {
+    const response = await fetch(url, {
+      credentials: "include",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      }
+    });
+
+    const text = await response.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch (_) {}
+
+    if (!response.ok) {
+      throw new Error(data.error || data.message || "Não foi possível concluir a operação.");
+    }
+    return data;
+  }
+
+  function setAuthMode(isRegister) {
+    registerMode = isRegister;
+    loginTab.classList.toggle("active", !registerMode);
+    registerTab.classList.toggle("active", registerMode);
+    nameInput.classList.toggle("hidden", !registerMode);
+    companyInput.classList.toggle("hidden", !registerMode);
+    nameInput.required = registerMode;
+    companyInput.required = registerMode;
+    passwordInput.autocomplete = registerMode ? "new-password" : "current-password";
+    authButton.textContent = registerMode ? "Criar conta" : "Entrar";
+    authMessage.textContent = "";
+  }
+
+  function showAuthError(error) {
+    authMessage.textContent = error?.message || "Não foi possível concluir o cadastro.";
+  }
+
+  async function submitAuth(event) {
+    event.preventDefault();
+    authMessage.textContent = "";
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!email || !password) {
+      authMessage.textContent = "Preencha e-mail e senha.";
+      return;
+    }
+
+    if (registerMode) {
+      const name = nameInput.value.trim();
+      const companyName = companyInput.value.trim();
+      if (!name || !companyName) {
+        authMessage.textContent = "Preencha seu nome e o nome da empresa.";
+        return;
+      }
+    }
+
+    authButton.disabled = true;
+    authButton.textContent = registerMode ? "Criando conta..." : "Entrando...";
+
+    try {
+      let data;
+      if (registerMode) {
+        data = await api("/api/register", {
+          method: "POST",
+          body: JSON.stringify({
+            name: nameInput.value.trim(),
+            companyName: companyInput.value.trim(),
+            email,
+            password
+          })
+        });
+      } else {
+        data = await api("/api/login", {
+          method: "POST",
+          body: JSON.stringify({ email, password })
+        });
+      }
+
+      if (!data.user) throw new Error("Servidor não retornou os dados do usuário.");
+      await openApp(data.user);
+    } catch (error) {
+      showAuthError(error);
+    } finally {
+      authButton.disabled = false;
+      authButton.textContent = registerMode ? "Criar conta" : "Entrar";
+    }
+  }
+
+  async function openApp(user) {
+    currentUser = user;
+    authScreen.classList.add("hidden");
+    appScreen.classList.remove("hidden");
+    helloText.textContent = "Olá, " + (user.name || "usuário") + ".";
+    systemStatus.textContent = "Online";
+    showPage("dashboard");
+    await loadLeads();
+  }
+
+  async function loadLeads() {
+    leadRows.innerHTML = '<tr><td colspan="4" class="loading">Carregando leads...</td></tr>';
+    try {
+      const data = await api("/api/leads");
+      leads = Array.isArray(data.leads) ? data.leads : [];
+      renderLeads();
+    } catch (error) {
+      systemStatus.textContent = "Erro";
+      leadRows.innerHTML = '<tr><td colspan="4" class="empty">Não foi possível carregar os leads.</td></tr>';
+      console.error(error);
+    }
+  }
+
+  function renderLeads() {
+    const query = searchInput.value.trim().toLowerCase();
+    const filtered = leads.filter(lead => {
+      return [lead.name, lead.email, lead.phone].some(value => String(value || "").toLowerCase().includes(query));
+    });
+
+    totalLeads.textContent = String(leads.length);
+    newLeads.textContent = String(leads.filter(lead => String(lead.status || "").toLowerCase() === "novo").length);
+
+    if (!filtered.length) {
+      leadRows.innerHTML = '<tr><td colspan="4" class="empty">Nenhum lead encontrado.</td></tr>';
+      return;
+    }
+
+    leadRows.innerHTML = filtered.map(lead => {
+      const name = escapeHtml(lead.name || "Sem nome");
+      const email = escapeHtml(lead.email || "-");
+      const phone = escapeHtml(lead.phone || "-");
+      const status = escapeHtml(lead.status || "novo");
+      return `<tr><td><strong>${name}</strong></td><td>${email}</td><td>${phone}</td><td><span class="tag">${status}</span></td></tr>`;
+    }).join("");
+  }
+
+  async function createLead(event) {
+    event.preventDefault();
+    leadMessage.textContent = "";
+
+    const name = leadNameInput.value.trim();
+    if (!name) {
+      leadMessage.textContent = "Informe o nome do lead.";
+      return;
+    }
+
+    saveLeadButton.disabled = true;
+    saveLeadButton.textContent = "Salvando...";
+
+    try {
+      await api("/api/leads", {
+        method: "POST",
+        body: JSON.stringify({
+          name,
+          email: leadEmailInput.value.trim() || null,
+          phone: leadPhoneInput.value.trim() || null,
+          status: leadStatusInput.value
+        })
+      });
+      closeLeadModal();
+      await loadLeads();
+    } catch (error) {
+      leadMessage.textContent = error.message;
+    } finally {
+      saveLeadButton.disabled = false;
+      saveLeadButton.textContent = "Salvar lead";
+    }
+  }
+
+  function openLeadModal() {
+    leadForm.reset();
+    leadMessage.textContent = "";
+    leadModal.classList.remove("hidden");
+    setTimeout(() => leadNameInput.focus(), 0);
+  }
+
+  function closeLeadModal() {
+    leadModal.classList.add("hidden");
+  }
+
+  function showPage(page) {
+    const dashboard = page === "dashboard";
+    dashboardSection.classList.toggle("hidden", !dashboard);
+    leadsSection.classList.toggle("hidden", dashboard);
+    dashboardNav.classList.toggle("active", dashboard);
+    leadsNav.classList.toggle("active", !dashboard);
+  }
+
+  async function logout() {
+    logoutButton.disabled = true;
+    try { await api("/api/logout", { method: "POST" }); } catch (_) {}
+    window.location.reload();
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+    }[char]));
+  }
+
+  loginTab.addEventListener("click", () => setAuthMode(false));
+  registerTab.addEventListener("click", () => setAuthMode(true));
+  authForm.addEventListener("submit", submitAuth);
+  dashboardNav.addEventListener("click", () => showPage("dashboard"));
+  leadsNav.addEventListener("click", () => showPage("leads"));
+  logoutButton.addEventListener("click", logout);
+  searchInput.addEventListener("input", renderLeads);
+  newLeadButton.addEventListener("click", openLeadModal);
+  closeModalButton.addEventListener("click", closeLeadModal);
+  cancelLeadButton.addEventListener("click", closeLeadModal);
+  leadForm.addEventListener("submit", createLead);
+  leadModal.addEventListener("click", event => { if (event.target === leadModal) closeLeadModal(); });
+
+  setAuthMode(false);
+
+  (async function restoreSession() {
+    try {
+      const data = await api("/api/me");
+      if (data.user) await openApp(data.user);
+    } catch (_) {
+      // Usuário não autenticado. A tela de login permanece aberta.
+    }
+  })();
+})();
+</script>
+</body>
+</html>
