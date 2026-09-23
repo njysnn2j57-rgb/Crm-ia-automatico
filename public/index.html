@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CRM IA</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#f5f7fb;
+color:#172033
+}
+
+button,input{font:inherit}
+
+.auth{
+min-height:100vh;
+display:grid;
+place-items:center;
+padding:20px
+}
+
+.box{
+width:min(430px,100%);
+background:white;
+padding:28px;
+border-radius:20px;
+box-shadow:0 15px 45px #0001
+}
+
+.logo{
+width:42px;
+height:42px;
+border-radius:12px;
+background:#6c5ce7;
+color:white;
+display:grid;
+place-items:center;
+font-weight:bold
+}
+
+.brand{
+display:flex;
+gap:10px;
+align-items:center;
+font-size:21px;
+font-weight:bold;
+margin-bottom:25px
+}
+
+.tabs{
+display:flex;
+background:#f0f2f6;
+padding:4px;
+border-radius:10px;
+margin-bottom:20px
+}
+
+.tabs button{
+flex:1;
+border:0;
+background:transparent;
+padding:10px;
+border-radius:8px;
+cursor:pointer
+}
+
+.tabs .active{
+background:white;
+box-shadow:0 2px 8px #0001
+}
+
+.form{
+display:grid;
+gap:12px
+}
+
+input{
+width:100%;
+padding:13px;
+border:1px solid #dce2ec;
+border-radius:10px;
+outline:none
+}
+
+input:focus{
+border-color:#6c5ce7
+}
+
+.btn{
+border:0;
+border-radius:10px;
+padding:13px;
+background:#6c5ce7;
+color:white;
+font-weight:bold;
+cursor:pointer
+}
+
+.btn:hover{
+opacity:.9
+}
+
+.msg{
+color:#d64545;
+font-size:13px;
+min-height:18px
+}
+
+.app{
+display:none;
+min-height:100vh
+}
+
+.side{
+position:fixed;
+left:0;
+top:0;
+bottom:0;
+width:220px;
+background:#101426;
+color:white;
+padding:20px
+}
+
+.nav{
+display:grid;
+gap:7px;
+margin-top:30px
+}
+
+.nav button{
+border:0;
+background:transparent;
+color:#aeb6ca;
+text-align:left;
+padding:12px;
+border-radius:9px;
+cursor:pointer
+}
+
+.nav button.active,
+.nav button:hover{
+background:#20263b;
+color:white
+}
+
+.main{
+margin-left:220px;
+padding:25px
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px
+}
+
+.card{
+background:white;
+border:1px solid #e7ebf2;
+border-radius:15px;
+padding:18px
+}
+
+.num{
+font-size:25px;
+font-weight:bold;
+margin-top:8px
+}
+
+.muted{
+color:#718096;
+font-size:13px
+}
+
+.toolbar{
+display:flex;
+gap:10px;
+margin-bottom:15px
+}
+
+.search{
+flex:1
+}
+
+table{
+width:100%;
+border-collapse:collapse
+}
+
+th,td{
+text-align:left;
+padding:13px 8px;
+border-bottom:1px solid #edf0f5;
+font-size:13px
+}
+
+.tag{
+background:#eeeaff;
+color:#5b4fd0;
+padding:5px 9px;
+border-radius:20px;
+font-size:11px;
+font-weight:bold
+}
+
+.empty{
+text-align:center;
+padding:30px;
+color:#718096
+}
+
+@media(max-width:700px){
+
+.side{
+width:60px;
+padding:12px
+}
+
+.side span{
+display:none
+}
+
+.main{
+margin-left:60px;
+padding:15px
+}
+
+.cards{
+grid-template-columns:1fr
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="auth" class="auth">
+
+<div class="box">
+
+<div class="brand">
+<div class="logo">C</div>
+CRM IA
+</div>
+
+<div class="tabs">
+
+<button
+id="loginTab"
+class="active"
+onclick="mode('login')">
+Entrar
+</button>
+
+<button
+id="registerTab"
+onclick="mode('register')">
+Criar conta
+</button>
+
+</div>
+
+<form
+class="form"
+onsubmit="submitAuth(event)">
+
+<input
+id="name"
+placeholder="Seu nome"
+style="display:none">
+
+<input
+id="company"
+placeholder="Nome da empresa"
+style="display:none">
+
+<input
+id="email"
+type="email"
+placeholder="E-mail"
+required>
+
+<input
+id="password"
+type="password"
+placeholder="Senha"
+required>
+
+<div
+id="msg"
+class="msg">
+</div>
+
+<button
+class="btn"
+id="submit">
+Entrar
+</button>
+
+</form>
+
+</div>
+</div>
+
+
+<!-- SISTEMA -->
+
+<div id="app" class="app">
+
+<aside class="side">
+
+<div class="brand">
+
+<div class="logo">C</div>
+
+<span>CRM IA</span>
+
+</div>
+
+<div class="nav">
+
+<button
+class="active"
+onclick="page('dashboard',this)">
+▦ <span>Dashboard</span>
+</button>
+
+<button
+onclick="page('leads',this)">
+♙ <span>Leads</span>
+</button>
+
+<button
+onclick="logout()">
+↪ <span>Sair</span>
+</button>
+
+</div>
+
+</aside>
+
+
+<main class="main">
+
+
+<!-- DASHBOARD -->
+
+<section id="dashboard">
+
+<div class="top">
+
+<div>
+
+<h1>Dashboard</h1>
+
+<div
+id="hello"
+class="muted">
+</div>
+
+</div>
+
+</div>
+
+
+<div class="cards">
+
+<div class="card">
+
+<div class="muted">
+Total de leads
+</div>
+
+<div
+id="count"
+class="num">
+0
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="muted">
+Novos leads
+</div>
+
+<div
+id="newCount"
+class="num">
+0
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="muted">
+Sistema
+</div>
+
+<div
+class="num"
+style="font-size:18px">
+Online
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- LEADS -->
+
+<section
+id="leads"
+style="display:none;margin-top:20px">
+
+<div class="top">
+
+<div>
+
+<h1>Leads</h1>
+
+<div class="muted">
+Leads salvos no banco de dados.
+</div>
+
+</div>
+
+<button
+class="btn"
+onclick="newLead()">
++ Novo lead
+</button>
+
+</div>
+
+
+<div class="card">
+
+<div class="toolbar">
+
+<input
+id="search"
+class="search"
+placeholder="Buscar lead..."
+oninput="render()">
+
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Nome</th>
+
+<th>E-mail</th>
+
+<th>Telefone</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="rows">
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+
+<script>
+
+let registerMode=false;
+
+let leads=[];
+
+
+async function api(url,options={}){
+
+const response=await fetch(url,{
+
+credentials:"include",
+
+headers:{
+"Content-Type":"application/json",
+...(options.headers||{})
+},
+
+...options
+
+});
+
+
+const data=await response
+.json()
+.catch(()=>({}));
+
+
+if(!response.ok){
+
+throw new Error(
+data.error || "Erro na operação"
+);
+
+}
+
+
+return data;
+
+}
+
+
+function mode(type){
+
+registerMode=type==="register";
+
+
+loginTab.classList.toggle(
+"active",
+!registerMode
+);
+
+registerTab.classList.toggle(
+"active",
+registerMode
+);
+
+
+name.style.display=
+registerMode
+?"block"
+:"none";
+
+
+company.style.display=
+registerMode
+?"block"
+:"none";
+
+
+submit.textContent=
+registerMode
+?"Criar conta"
+:"Entrar";
+
+
+msg.textContent="";
+
+}
+
+
+async function submitAuth(event){
+
+event.preventDefault();
+
+msg.textContent="";
+
+
+try{
+
+let data;
+
+
+if(registerMode){
+
+data=await api(
+"/api/register",
+{
+
+method:"POST",
+
+body:JSON.stringify({
+
+name:name.value,
+
+companyName:company.value,
+
+email:email.value,
+
+password:password.value
+
+})
+
+});
+
+}else{
+
+data=await api(
+"/api/login",
+{
+
+method:"POST",
+
+body:JSON.stringify({
+
+email:email.value,
+
+password:password.value
+
+})
+
+});
+
+}
+
+
+openApp(data.user);
+
+
+}catch(error){
+
+msg.textContent=error.message;
+
+}
+
+}
+
+
+async function openApp(user){
+
+auth.style.display="none";
+
+app.style.display="block";
+
+hello.textContent=
+"Olá, "+user.name;
+
+
+await loadLeads();
+
+}
+
+
+async function loadLeads(){
+
+try{
+
+const data=
+await api("/api/leads");
+
+leads=data.leads||[];
+
+render();
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+
+
+function render(){
+
+const query=
+(search.value||"")
+.toLowerCase();
+
+
+const filtered=
+leads.filter(lead=>
+
+(lead.name||"")
+.toLowerCase()
+.includes(query)
+
+||
+
+(lead.email||"")
+.toLowerCase()
+.includes(query)
+
+||
+
+(lead.phone||"")
+.toLowerCase()
+.includes(query)
+
+);
+
+
+rows.innerHTML=
+filtered.length
+
+?
+
+filtered.map(lead=>`
+
+<tr>
+
+<td>
+<b>
+${escapeHtml(lead.name)}
+</b>
+</td>
+
+<td>
+${escapeHtml(lead.email||"-")}
+</td>
+
+<td>
+${escapeHtml(lead.phone||"-")}
+</td>
+
+<td>
+
+<span class="tag">
+${escapeHtml(
+lead.status||"novo"
+)}
+</span>
+
+</td>
+
+</tr>
+
+`).join("")
+
+:
+
+`
+<tr>
+<td
+colspan="4"
+class="empty">
+Nenhum lead encontrado.
+</td>
+</tr>
+`;
+
+
+count.textContent=
+leads.length;
+
+
+newCount.textContent=
+leads.filter(
+
+l=>
+(l.status||"")
+.toLowerCase()==="novo"
+
+).length;
+
+}
+
+
+async function newLead(){
+
+const leadName=
+prompt("Nome do lead:");
+
+if(!leadName)return;
+
+
+const leadEmail=
+prompt("E-mail:");
+
+
+const phone=
+prompt("Telefone:");
+
+
+try{
+
+await api(
+"/api/leads",
+{
+
+method:"POST",
+
+body:JSON.stringify({
+
+name:leadName,
+
+email:leadEmail||null,
+
+phone:phone||null,
+
+status:"novo"
+
+})
+
+});
+
+
+await loadLeads();
+
+
+alert(
+"Lead criado com sucesso!"
+);
+
+
+}catch(error){
+
+alert(error.message);
+
+}
+
+}
+
+
+function page(section,button){
+
+document
+.querySelectorAll(".nav button")
+.forEach(
+b=>b.classList.remove("active")
+);
+
+
+button.classList.add("active");
+
+
+dashboard.style.display=
+section==="dashboard"
+?"block"
+:"none";
+
+
+leads.style.display=
+section==="leads"
+?"block"
+:"none";
+
+}
+
+
+async function logout(){
+
+try{
+
+await api(
+"/api/logout",
+{
+method:"POST"
+}
+);
+
+}catch{}
+
+
+location.reload();
+
+}
+
+
+function escapeHtml(value){
+
+return String(value)
+.replace(
+/[&<>"']/g,
+char=>({
+
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+
+}[char])
+);
+
+}
+
+
+(async function(){
+
+try{
+
+const data=
+await api("/api/me");
+
+openApp(data.user);
+
+}catch{}
+
+})();
+
+</script>
+
+</body>
+</html>
